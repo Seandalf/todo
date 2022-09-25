@@ -19,9 +19,10 @@ return new class extends Migration
             $table->string('short_description', 200)->nullable();
             $table->text('description')->nullable();
             $table->json('tags')->nullable();
+            $table->boolean('notifications')->default(false);
             $table->unsignedBigInteger('assignee_id')->nullable();
             $table->unsignedBigInteger('status_id');
-            $table->unsignedBigInteger('stage_id')->nullable();
+            $table->unsignedBigInteger('stage_id');
             $table->unsignedInteger('project_id');
             $table->unsignedBigInteger('parent_task_id')->nullable();
             $table->timestamp('original_due_at')->nullable();

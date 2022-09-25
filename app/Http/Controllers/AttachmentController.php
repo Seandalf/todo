@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Attachment;
 use App\Http\Requests\StoreAttachmentRequest;
 use App\Http\Requests\UpdateAttachmentRequest;
@@ -15,17 +16,13 @@ class AttachmentController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        try {
+            return successResponse(
+                Attachment::whereUserId($this->user->id)->get()
+            );
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not retrieve attachments for user: {$this->user->id}");
+        }
     }
 
     /**
@@ -36,7 +33,30 @@ class AttachmentController extends Controller
      */
     public function store(StoreAttachmentRequest $request)
     {
-        //
+        try {
+            if (!$request->file('attachment')) {
+                throw new Exception('No attachment uploaded');
+            }
+
+            $file = $request->file('attachment');
+            $filename = "{$file->hashName()}.{$file->extension()}";
+
+            $file->storeAs('attachments', $filename);
+
+            $attachment = Attachment::create([
+                'name' => $file->getClientOriginalName(),
+                'extension' => $file->extension(),
+                'filename' => $filename,
+                'filepath' => 'attachments',
+                'model' => $request->model,
+                'model_id' => $request->model_id,
+                'user_id' => $this->user->id,
+            ]);
+
+            return successResponse($attachment);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not upload attachment for user: {$this->user->id}");
+        }
     }
 
     /**
@@ -47,30 +67,11 @@ class AttachmentController extends Controller
      */
     public function show(Attachment $attachment)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Attachment  $attachment
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Attachment $attachment)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateAttachmentRequest  $request
-     * @param  \App\Models\Attachment  $attachment
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateAttachmentRequest $request, Attachment $attachment)
-    {
-        //
+        try {
+            return successResponse($attachment);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not retrieve attachment: {$attachment->id}");
+        }
     }
 
     /**
@@ -81,6 +82,11 @@ class AttachmentController extends Controller
      */
     public function destroy(Attachment $attachment)
     {
-        //
+        try {
+            $attachment->delete();
+            return successResponse($attachment);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not delete attachment: {$attachment->id}");
+        }
     }
 }

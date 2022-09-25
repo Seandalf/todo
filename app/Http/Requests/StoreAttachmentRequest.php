@@ -13,7 +13,7 @@ class StoreAttachmentRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,9 @@ class StoreAttachmentRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'file'     => 'required|file',
+            'model'    => 'required|string',
+            'model_id' => 'required|numeric',
         ];
     }
 }

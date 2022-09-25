@@ -7,6 +7,7 @@ use App\Models\Assignee;
 use App\Http\Requests\StoreAssigneeRequest;
 use App\Http\Requests\UpdateAssigneeRequest;
 use App\Models\Project;
+use Inertia\Inertia;
 
 class AssigneeController extends Controller
 {
@@ -19,7 +20,7 @@ class AssigneeController extends Controller
     {
         try {
             return successResponse(
-                Assignee::whereProjectId($project->id)
+                Assignee::whereProjectId($project->id)->get()
             );
         } catch (Exception $e) {
             return errorResponse($e->getMessage(), "Could not retrieve assignees for project: {$project->id}");
@@ -33,7 +34,7 @@ class AssigneeController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Assignees/Create');
     }
 
     /**
@@ -53,7 +54,7 @@ class AssigneeController extends Controller
 
             return successResponse($assignee);
         } catch (Exception $e) {
-            return errorResponse($e->getMessage(), "Could not retrieve assignees for project: {$project->id}");
+            return errorResponse($e->getMessage(), "Could not create assignee for project: {$project->id}");
         }
     }
 
@@ -65,7 +66,9 @@ class AssigneeController extends Controller
      */
     public function edit(Assignee $assignee)
     {
-        //
+        return Inertia::render('Assignees/Update', [
+            'assignee' => $assignee
+        ]);
     }
 
     /**

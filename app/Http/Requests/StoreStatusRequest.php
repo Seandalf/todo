@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enum\StatusType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class StoreStatusRequest extends FormRequest
 {
@@ -24,7 +26,10 @@ class StoreStatusRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => 'required|string|max:50',
+            'type' => ['required', new Enum(StatusType::class)],
+            'from' => 'nullable|json',
+            'to'   => 'nullable|json',
         ];
     }
 }

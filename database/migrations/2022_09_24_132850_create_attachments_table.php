@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 50);
             $table->string('extension', 5);
-            $table->string('filename', 60);
+            $table->string('filename');
             $table->string('filepath');
             $table->string('model');
             $table->unsignedBigInteger('model_id');

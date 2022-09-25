@@ -13,7 +13,7 @@ class StoreStageRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,9 @@ class StoreStageRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name'        => 'required|string|max:50',
+            'description' => 'nullable|string',
+            'order'       => 'numeric',
         ];
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\StatusController;
@@ -65,8 +66,8 @@ Route::middleware('auth:sanctum')->name('api.')->group(function () {
     Route::name('attachments')->prefix('attachments/')->group(function () {
         Route::get('index', [Attachment::class, 'index'])->can('viewAny', Attachment::class)->name('index');
         Route::put('store', [Attachment::class, 'store'])->can('create', Attachment::class)->name('store');
-        Route::patch('update/{attachment}', [Attachment::class, 'update'])->can('update', 'attachment')->name('update');
         Route::delete('delete/{attachment}', [Attachment::class, 'delete'])->can('delete', 'attachment')->name('delete');
+        Route::get('show/{attachment}', [AttachmentController::class, 'show'])->can('view', 'attachment')->name('show');
     });
 });
 

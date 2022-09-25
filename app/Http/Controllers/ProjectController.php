@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Project;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
+use Inertia\Inertia;
 
 class ProjectController extends Controller
 {
@@ -15,7 +17,13 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            return successResponse(
+                Project::whereUserId($this->user->id)->get()
+            );
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not retrieve projects for user: {$this->user->id}");
+        }
     }
 
     /**
@@ -25,7 +33,7 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Projects/Create');
     }
 
     /**
@@ -36,7 +44,17 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request)
     {
-        //
+        try {
+            $project = Project::create([
+                'user_id' => $this->user->id,
+
+                ...$request->validated(),
+            ]);
+
+            return successResponse($project);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not create project for user: {$this->user->id}");
+        }
     }
 
     /**
@@ -47,7 +65,9 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        //
+        return Inertia::render('Projects/View', [
+            'project' => $project,
+        ]);
     }
 
     /**
@@ -58,7 +78,9 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
-        //
+        return Inertia::render('Projects/Update', [
+            'project' => $project,
+        ]);
     }
 
     /**
@@ -70,7 +92,13 @@ class ProjectController extends Controller
      */
     public function update(UpdateProjectRequest $request, Project $project)
     {
-        //
+        try {
+            $project->update($request->validated());
+
+            return successResponse($project);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not update project: {$project->id}");
+        }
     }
 
     /**
@@ -81,6 +109,12 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        //
+        try {
+            $project->delete();
+
+            return successResponse($project);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not delete project: {$project->id}");
+        }
     }
 }

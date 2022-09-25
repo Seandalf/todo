@@ -31,7 +31,7 @@ class Task extends Model
         'due_at'          => 'datetime',
     ];
 
-    protected $appends = ['parent_category', 'attachments'];
+    protected $appends = ['parent_task', 'attachments', 'child_tasks'];
 
     // Relationships
 
@@ -55,9 +55,9 @@ class Task extends Model
         return $this->belongsTo(Assignee::class);
     }
 
-    protected function parentCategory(): Attribute
+    protected function parentTask(): Attribute
     {
-        $parent = Task::find($this->parent_category_id);
+        $parent = Task::find($this->parent_task_id);
         return Attribute::make(
             get: fn () => $parent,
         );
@@ -69,6 +69,13 @@ class Task extends Model
 
         return Attribute::make(
             get: fn () => Attachment::whereModel($class)->whereModelId($this->id)->get(),
+        );
+    }
+
+    protected function childTasks(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => Task::whereParentTaskId($this->id)->get(),
         );
     }
 }

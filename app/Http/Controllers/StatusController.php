@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Status;
+use App\Models\Project;
 use App\Http\Requests\StoreStatusRequest;
 use App\Http\Requests\UpdateStatusRequest;
+use Inertia\Inertia;
 
 class StatusController extends Controller
 {
@@ -13,9 +16,15 @@ class StatusController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Project $project)
     {
-        //
+        try {
+            return successResponse(
+                Status::whereProjectId($project->id)->get(),
+            );
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not retrieve statuses for project: {$project->id}");
+        }
     }
 
     /**
@@ -25,7 +34,7 @@ class StatusController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Statuses/Create');
     }
 
     /**
@@ -34,20 +43,19 @@ class StatusController extends Controller
      * @param  \App\Http\Requests\StoreStatusRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreStatusRequest $request)
+    public function store(StoreStatusRequest $request, Project $project)
     {
-        //
-    }
+        try {
+            $status = Status::create([
+                'project_id' => $project->id,
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Status  $status
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Status $status)
-    {
-        //
+                ...$request->validated(),
+            ]);
+
+            return successResponse($status);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not create status for project: {$project->id}");
+        }
     }
 
     /**
@@ -58,7 +66,9 @@ class StatusController extends Controller
      */
     public function edit(Status $status)
     {
-        //
+        return Inertia::render('Statuses/Update', [
+            'status' => $status,
+        ]);
     }
 
     /**
@@ -68,9 +78,15 @@ class StatusController extends Controller
      * @param  \App\Models\Status  $status
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateStatusRequest $request, Status $status)
+    public function update(UpdateStatusRequest $request, Project $project, Status $status)
     {
-        //
+        try {
+            $status->update($request->validated());
+
+            return successResponse($status);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not update status: {$status->id}");
+        }
     }
 
     /**
@@ -79,8 +95,14 @@ class StatusController extends Controller
      * @param  \App\Models\Status  $status
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Status $status)
+    public function destroy(Project $project, Status $status)
     {
-        //
+        try {
+            $status->delete();
+
+            return successResponse($status);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not delete status: {$status->id}");
+        }
     }
 }

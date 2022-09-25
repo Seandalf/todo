@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name', 50);
             $table->text('description')->nullable();
             $table->json('attributes')->nullable();
+            $table->boolean('notifications')->default(false);
             $table->unsignedBigInteger('user_id');
             $table->timestamp('original_due_at')->nullable();
             $table->timestamp('due_at')->nullable();

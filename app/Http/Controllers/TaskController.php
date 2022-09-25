@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Task;
+use App\Models\Project;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use Inertia\Inertia;
 
 class TaskController extends Controller
 {
@@ -13,9 +16,15 @@ class TaskController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Project $project)
     {
-        //
+        try {
+            return successResponse(
+                Task::whereProjectId($project->id)->get(),
+            );
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not retrieve tasks for project: {$project->id}");
+        }
     }
 
     /**
@@ -25,7 +34,7 @@ class TaskController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Tasks/Create');
     }
 
     /**
@@ -34,9 +43,19 @@ class TaskController extends Controller
      * @param  \App\Http\Requests\StoreTaskRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreTaskRequest $request)
+    public function store(StoreTaskRequest $request, Project $project)
     {
-        //
+        try {
+            $task = Task::create([
+                'project_id' => $project->id,
+
+                ...$request->validated(),
+            ]);
+
+            return successResponse($task);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not create task for project: {$project->id}");
+        }
     }
 
     /**
@@ -47,7 +66,9 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        //
+        return Inertia::render('Tasks/View', [
+            'task' => $task,
+        ]);
     }
 
     /**
@@ -58,7 +79,9 @@ class TaskController extends Controller
      */
     public function edit(Task $task)
     {
-        //
+        return Inertia::render('Tasks/Edit', [
+            'task' => $task,
+        ]);
     }
 
     /**
@@ -68,9 +91,15 @@ class TaskController extends Controller
      * @param  \App\Models\Task  $task
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateTaskRequest $request, Task $task)
+    public function update(UpdateTaskRequest $request, Project $project, Task $task)
     {
-        //
+        try {
+            $task->update($request->validated());
+
+            return successResponse($task);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not update task: {$task->id}");
+        }
     }
 
     /**
@@ -79,8 +108,14 @@ class TaskController extends Controller
      * @param  \App\Models\Task  $task
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Task $task)
+    public function destroy(Project $project, Task $task)
     {
-        //
+        try {
+            $task->delete();
+
+            return successResponse($task);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), "Could not delete task: {$task->id}");
+        }
     }
 }
