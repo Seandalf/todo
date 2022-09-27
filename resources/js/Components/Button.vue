@@ -1,0 +1,213 @@
+<script setup>
+import { computed } from "vue";
+import { Link } from "@inertiajs/inertia-vue3";
+
+import RightArrow from "@/Components/ButtonIcons/RightArrow.vue";
+import DownArrow from "@/Components/ButtonIcons/DownArrow.vue";
+import Plus from "@/Components/ButtonIcons/Plus.vue";
+import RightChevron from "@/Components/ButtonIcons/RightChevron.vue";
+import LeftChevron from "@/Components/ButtonIcons/LeftChevron.vue";
+
+import { MoonLoader } from "vue-spinner/dist/vue-spinner.min.js";
+
+const props = defineProps({
+    label: {
+        type: String,
+        default: "Submit",
+    },
+    buttonStyle: {
+        type: String,
+        default: "primary",
+    },
+    type: {
+        type: String,
+        default: "button",
+    },
+    fullWidth: {
+        type: Boolean,
+        default: false,
+    },
+    outline: {
+        type: Boolean,
+        default: false,
+    },
+    linkStyle: {
+        type: Boolean,
+        default: false,
+    },
+    disabled: {
+        type: Boolean,
+        default: false,
+    },
+    loading: {
+        type: Boolean,
+        default: false,
+    },
+    href: {
+        type: String,
+        default: null,
+    },
+    icon: {
+        type: String,
+        default: null,
+    },
+    noUnderline: {
+        type: Boolean,
+        default: false,
+    },
+    labelSrOnly: {
+        type: Boolean,
+        default: false,
+    },
+});
+
+const spinnerColor = computed(() => {
+    if (props.outline || props.linkStyle) {
+        return "#000000";
+    }
+
+    return "#FFFFFF";
+});
+
+const classes = computed(() => {
+    const defaultClasses =
+        "rounded-lg text-sm tracking-wide py-2.5 px-4 border transition ease-in-out flex items-center justify-center group";
+    let classList = defaultClasses;
+
+    if (props.outline) {
+        switch (props.buttonStyle) {
+            case "black":
+                classList +=
+                    " font-semibold bg-transparent text-slate-600 border-slate-900/10 hover:border-slate-900/20";
+                break;
+            case "secondary":
+                classList +=
+                    " font-semibold bg-transparent text-violet-600 border-violet-500/20 hover:border-violet-600";
+                break;
+            case "tertiary":
+                classList +=
+                    " font-semibold bg-transparent text-tertiary-600 border-tertiary-500/20 hover:border-tertiary-600";
+                break;
+            case "success":
+                classList +=
+                    " font-semibold bg-transparent text-green-600 border-green-500/20 hover:border-green-600";
+                break;
+            case "error":
+                classList +=
+                    " font-semibold bg-transparent text-red-600 border-red-500/20 hover:border-red-600";
+                break;
+            default:
+                classList +=
+                    " font-semibold bg-transparent text-sky-600 border-sky-500/20 hover:border-sky-500";
+                break;
+        }
+    } else if (props.linkStyle) {
+        switch (props.buttonStyle) {
+            case "black":
+                classList +=
+                    " bg-transparent text-slate-600 hover:text-slate-700 border-transparent";
+                break;
+            case "secondary":
+                classList +=
+                    " bg-transparent text-violet-500 hover:text-violet-600 border-transparent";
+                break;
+            case "tertiary":
+                classList +=
+                    " bg-transparent text-tertiary-500 hover:text-tertiary-600 border-transparent";
+                break;
+            case "success":
+                classList +=
+                    " bg-transparent text-green-500 hover:text-green-600 border-transparent";
+                break;
+            case "error":
+                classList +=
+                    " bg-transparent text-red-500 hover:text-red-600 border-transparent";
+                break;
+            default:
+                classList +=
+                    " bg-transparent text-skysky-500 hover:text-skysky-600 border-transparent";
+                break;
+        }
+
+        if (!props.noUnderline) {
+            classList += " hover:underline";
+        }
+    } else {
+        switch (props.buttonStyle) {
+            case "black":
+                classList +=
+                    " font-semibold bg-slate-900 hover:bg-slate-700 text-white border-slate-900 hover:border-slate-700";
+                break;
+            case "secondary":
+                classList +=
+                    " font-semibold bg-violet-500 hover:bg-violet-600 text-white border-violet-500 hover:border-violet-600";
+                break;
+            case "success":
+                classList +=
+                    " font-semibold bg-green-500 hover:bg-green-600 text-white border-green-500 hover:border-green-600";
+                break;
+            case "error":
+                classList +=
+                    " font-semibold bg-red-500 hover:bg-red-600 text-white border-red-500 hover:border-red-600";
+                break;
+            case "white":
+                classList +=
+                    " bg-white hover:bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300";
+                break;
+            default:
+                classList +=
+                    " font-semibold bg-sky-500 hover:bg-sky-600 text-white border-sky-500 hover:border-sky-600";
+                break;
+        }
+    }
+
+    if (props.fullWidth) {
+        classList += " w-full";
+    }
+
+    if (props.disabled) {
+        classList += " pointer-events-none opacity-25";
+    }
+
+    return classList;
+});
+</script>
+
+<template>
+    <div :class="{ 'pointer-events-none': disabled }">
+        <button v-if="type === 'button'" :class="classes">
+            <template v-if="loading">
+                <MoonLoader :color="spinnerColor" size="20px"></MoonLoader>
+            </template>
+            <template v-else>
+                <p :class="{ 'sr-only': labelSrOnly }" v-html="label"></p>
+
+                <RightArrow v-if="icon === 'arrow'" />
+                <DownArrow v-if="icon === 'down-arrow'" />
+                <Plus v-if="icon === 'plus'" />
+                <RightChevron v-if="icon === 'right-chevron'" />
+                <LeftChevron v-if="icon === 'left-chevron'" />
+            </template>
+        </button>
+        <Link
+            v-if="type === 'link'"
+            :class="`${classes} cursor-pointer block text-center`"
+            :href="href"
+        >
+            <template v-if="loading">
+                <MoonLoader :color="spinnerColor" size="20px"></MoonLoader>
+            </template>
+            <template v-else>
+                <p>
+                    {{ label }}
+                </p>
+
+                <RightArrow v-if="icon === 'arrow'" />
+                <DownArrow v-if="icon === 'down-arrow'" />
+                <Plus v-if="icon === 'plus'" />
+                <RightChevron v-if="icon === 'right-chevron'" />
+                <LeftChevron v-if="icon === 'left-chevron'" />
+            </template>
+        </Link>
+    </div>
+</template>
